@@ -73,7 +73,7 @@ export default async function Article({ params }: { params: { id: string } }) {
       />
 
       <h1 className="text-2xl font-bold mb-4">{article.title}</h1>
-      <p className="bg-gray-100 italic p-3 mb-4 rounded">{article.summary}</p>
+      {article.summary && <p className="bg-gray-100 italic p-3 mb-4 rounded">{article.summary}</p>}
 
       {article.image_url && (
         <img
