@@ -29,7 +29,7 @@ export async function GET() {
   );
 
   for (const sub of subscribers.rows) {
-    await sendEmail(sub.email, summary);
+    await sendEmail(sub.email, summary ||'');
   }
 
   return NextResponse.json({ success: true });
