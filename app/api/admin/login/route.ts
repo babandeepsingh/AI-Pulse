@@ -16,8 +16,6 @@ export async function POST(req: Request) {
 
   const user = result.rows[0];
 
-  bcrypt.hash('admin', 10).then(console.log);
-
   if (!isValid) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }
