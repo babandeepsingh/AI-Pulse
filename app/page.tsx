@@ -212,7 +212,7 @@ export default function Home() {
 
               {noMore && (
                 <div className="text-center py-4 text-gray-400 text-sm">
-                  You've reached the end
+                  You&apos;ve reached the end
                 </div>
               )}
             </>
