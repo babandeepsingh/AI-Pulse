@@ -1,16 +1,11 @@
 import nodemailer from 'nodemailer';
 
-export const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+import { Resend } from "resend";
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function sendEmail(to: string, content: string) {
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  await resend.emails.send({
+    from: process.env.EMAIL_FROM ?? 'onboarding@resend.dev',
     to,
     subject: 'Daily News Summary',
     html: `<h2>Daily Summary</h2><p>${content}</p>`,
