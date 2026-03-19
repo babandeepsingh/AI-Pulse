@@ -3,7 +3,7 @@ import { NewsDigest } from './openai';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendEmail(to: string, digest: NewsDigest) {
+export async function sendEmail(to: string, digest: any) {
   const { data, error } = await resend.emails.send({
     from: 'AI News <noreply@mail.babandeep.in>',
     to: [to],
