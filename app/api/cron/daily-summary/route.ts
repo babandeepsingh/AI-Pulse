@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { generateSummary } from '@/lib/openai';
 import { sendEmail } from '@/lib/mailer';
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const articles = await query(
