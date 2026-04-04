@@ -2,7 +2,7 @@ import Link from 'next/link';
 import './globals.css';
 import type { Metadata } from 'next';
 
-const SITE_URL = 'https://AI-Pulse.babandeep.in';
+const SITE_URL = 'https://news.babandeep.in';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -46,6 +46,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="5I7cGJDGHUPhfCIW8SKWhdMm3QKBaCOCp1SzB9zPjmk" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","w6brwwenwy");`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
