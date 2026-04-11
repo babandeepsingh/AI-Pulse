@@ -15,18 +15,10 @@ export default function Home() {
   const [noMore, setNoMore] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [subscribeLoading, setSubscribeLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const limit = 6;
 
-  const [submitTitle, setSubmitTitle] = useState('');
-  const [submitContent, setSubmitContent] = useState('');
-  const [submitSummary, setSubmitSummary] = useState('');
-  const [submitImage, setSubmitImage] = useState('');
-  const [submitSourceName, setSubmitSourceName] = useState('');
-  const [submitSourceUrl, setSubmitSourceUrl] = useState('');
-  const [submitLoading, setSubmitLoading] = useState(false);
 
   const fetchNews = async (pageNumber: number) => {
     if (isFetching) return;
@@ -111,35 +103,6 @@ export default function Home() {
     return () => clearTimeout(debounce);
   }, [search]);
 
-  const submitArticle = async () => {
-    if (!submitTitle || !submitContent) {
-      alert('Title and content required');
-      return;
-    }
-    setSubmitLoading(true);
-    const res = await fetch('/api/submit-news', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: submitTitle,
-        content: submitContent,
-        summary: submitSummary,
-        imageUrl: submitImage,
-        sourceName: submitSourceName,
-        sourceUrl: submitSourceUrl,
-      }),
-    });
-    setSubmitLoading(false);
-    if (res.ok) {
-      setIsModalOpen(false);
-      setSubmitTitle(''); setSubmitContent(''); setSubmitSummary('');
-      setSubmitImage(''); setSubmitSourceName(''); setSubmitSourceUrl('');
-      alert('Article submitted for review!');
-    } else {
-      alert('Something went wrong.');
-    }
-  };
-
   const subscribe = async () => {
     if (!email) return;
     setSubscribeLoading(true);
@@ -177,7 +140,9 @@ export default function Home() {
             <>
               {news.map((item: any) => (
                 <div key={item.id} className="bg-white p-4 mb-4 shadow rounded">
-                  <h2 className="text-xl font-bold">{item.title}</h2>
+                  <a href={`/article/${item.id}`} className="hover:underline">
+                    <h2 className="text-xl font-bold">{item.title}</h2>
+                  </a>
                   <div className="flex justify-between items-center mt-4">
                     <p className="text-gray-600 truncate mr-4">{item.content}</p>
                     <a href={`/article/${item.id}`} className="text-blue-500 flex-shrink-0">
@@ -240,30 +205,6 @@ export default function Home() {
         </div>
       </div>
 
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-6 right-6 bg-blue-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-blue-700 transition"
-      >
-        + Submit News
-      </button>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-lg p-6 rounded-lg shadow-xl relative">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-3 right-3 text-gray-500 hover:text-black">✕</button>
-            <h2 className="text-xl font-bold mb-4">Submit News</h2>
-            <input className="border p-2 w-full mb-2" placeholder="Title" value={submitTitle} onChange={(e) => setSubmitTitle(e.target.value)} />
-            <textarea className="border p-2 w-full mb-2" placeholder="Summary" value={submitSummary} onChange={(e) => setSubmitSummary(e.target.value)} />
-            <textarea className="border p-2 w-full mb-2" placeholder="Content" rows={4} value={submitContent} onChange={(e) => setSubmitContent(e.target.value)} />
-            <input className="border p-2 w-full mb-2" placeholder="Image URL" value={submitImage} onChange={(e) => setSubmitImage(e.target.value)} />
-            <input className="border p-2 w-full mb-2" placeholder="Source Name" value={submitSourceName} onChange={(e) => setSubmitSourceName(e.target.value)} />
-            <input className="border p-2 w-full mb-4" placeholder="Source URL" value={submitSourceUrl} onChange={(e) => setSubmitSourceUrl(e.target.value)} />
-            <button onClick={submitArticle} disabled={submitLoading} className="bg-blue-600 text-white w-full py-2 rounded disabled:opacity-50">
-              {submitLoading ? 'Submitting...' : 'Submit for Review'}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

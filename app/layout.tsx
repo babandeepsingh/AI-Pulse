@@ -1,18 +1,19 @@
 import Link from 'next/link';
 import './globals.css';
 import type { Metadata } from 'next';
+import FloatingActions from '@/components/FloatingActions';
 
 const SITE_URL = 'https://news.babandeep.in';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'AI Pulse — Daily AI News',
-    template: '%s | AI Pulse',
+    default: 'News — Daily AI News',
+    template: '%s | AI News',
   },
-  description: 'AI Pulse delivers daily AI-generated news on artificial intelligence, machine learning, and frontier models. Stay informed every morning.',
+  description: 'AI News delivers daily AI-generated news on artificial intelligence, machine learning, and frontier models. Stay informed every morning.',
   keywords: ['AI news', 'artificial intelligence', 'machine learning', 'daily AI briefing', 'frontier models'],
-  authors: [{ name: 'AI Pulse' }],
+  authors: [{ name: 'Babandeep Singh' }],
   robots: {
     index: true,
     follow: true,
@@ -21,14 +22,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: SITE_URL,
-    siteName: 'AI Pulse',
-    title: 'AI Pulse — Daily AI News',
+    siteName: 'AI News',
+    title: 'AI News — Daily AI News',
     description: 'AI-generated news on artificial intelligence, delivered daily.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'AI Pulse' }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'AI News' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Pulse — Daily AI News',
+    title: 'AI News — Daily AI News',
     description: 'AI-generated news on artificial intelligence, delivered daily.',
     images: ['/og-image.png'],
   },
@@ -46,18 +47,20 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="5I7cGJDGHUPhfCIW8SKWhdMm3QKBaCOCp1SzB9zPjmk" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","w6brwwenwy");`,
-          }}
-        />
+        {process.env.NODE_ENV === 'production' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","w6brwwenwy");`,
+            }}
+          />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'NewsMediaOrganization',
-              name: 'AI Pulse',
+              name: 'AI News',
               url: SITE_URL,
               description: 'Daily AI-generated news on artificial intelligence and machine learning.',
             }),
@@ -65,12 +68,16 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-gray-100">
-        <nav className="bg-black text-white p-4 flex justify-between">
+        <nav className="bg-black text-white p-4 flex justify-between items-center">
           <Link href="/" className="text-xl font-bold">
-            AI-Pulse
+            News
+          </Link>
+          <Link href="/chat" className="text-sm text-gray-300 hover:text-white transition-colors tracking-wide">
+            News Intelligence
           </Link>
         </nav>
         <div className="max-w-5xl mx-auto p-6">{children}</div>
+        <FloatingActions />
       </body>
     </html>
   );

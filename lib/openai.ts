@@ -1,7 +1,14 @@
 import OpenAI from 'openai';
+import { Langfuse } from 'langfuse';
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+});
+
+const langfuse = new Langfuse({
+  secretKey: process.env.LANGFUSE_SECRET_KEY,
+  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+  baseUrl: process.env.LANGFUSE_BASE_URL,
 });
 
 export interface NewsDigest {
@@ -10,13 +17,7 @@ export interface NewsDigest {
   plainText: string;
 }
 
-export async function generateSummary(content: string): Promise<NewsDigest> {
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      {
-        role: 'system',
-        content: `You are an expert news editor for a professional daily news digest service at news.babandeep.in.
+const SYSTEM_PROMPT = `You are an expert news editor for a professional daily news digest service at news.babandeep.in.
 
 Your task is to transform raw news content into a polished daily briefing. Respond ONLY with valid JSON in exactly this structure:
 {
@@ -39,19 +40,42 @@ Rules:
   - "category": One of: World, Business, Technology, Science, Politics, Health, Culture
 - "closing": One forward-looking sentence teasing what to watch tomorrow (max 120 chars)
 
-Tone: Authoritative, neutral, concise. No filler phrases like "In today's fast-paced world."`,
-      },
-      {
-        role: 'user',
-        content: `Summarize the following news content into a structured daily digest:\n\n${content}`,
-      },
-    ],
+Tone: Authoritative, neutral, concise. No filler phrases like "In today's fast-paced world."`;
+
+export async function generateSummary(content: string): Promise<NewsDigest> {
+  const messages = [
+    { role: 'system' as const, content: SYSTEM_PROMPT },
+    { role: 'user' as const, content: `Summarize the following news content into a structured daily digest:\n\n${content}` },
+  ];
+
+  const trace = langfuse.trace({ name: 'daily-digest-email' });
+  const generation = trace.generation({
+    name: 'digest-generation',
+    model: 'gpt-4o-mini',
+    input: messages,
+  });
+
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages,
     response_format: { type: 'json_object' },
   });
 
   const raw = response.choices[0].message.content ?? '{}';
-  const parsed = JSON.parse(raw);
+  const usage = response.usage;
 
+  generation.end({
+    output: raw,
+    usage: {
+      input: usage?.prompt_tokens,
+      output: usage?.completion_tokens,
+      total: usage?.total_tokens,
+    },
+  });
+  trace.update({ output: raw });
+  await langfuse.flushAsync();
+
+  const parsed = JSON.parse(raw);
   const { subject, sections = [], closing = '' } = parsed;
 
   const htmlBody = buildEmailHtml(sections, closing);

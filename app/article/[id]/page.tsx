@@ -65,7 +65,7 @@ export default async function Article({ params }: { params: { id: string } }) {
             url: `${SITE_URL}/article/${params.id}`,
             publisher: {
               '@type': 'Organization',
-              name: 'AI Pulse',
+              name: 'AI News',
               url: SITE_URL,
             },
           }),

@@ -10,14 +10,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const articles = articlesRes.rows;
 
     return [
-      { url: 'https://AI-Pulse.babandeep.in', lastModified: new Date() },
+      { url: 'https://news.babandeep.in', lastModified: new Date() },
       ...articles.map((a: any) => ({
-        url: `https://AI-Pulse.babandeep.in/article/${a.id}`,
+        url: `https://news.babandeep.in/article/${a.id}`,
         lastModified: new Date(a.created_at),
       })),
     ];
   } catch (err) {
     console.error('Sitemap generation failed:', err);
-    return [{ url: 'https://AI-Pulse.babandeep.in', lastModified: new Date() }];
+    return [{ url: 'https://news.babandeep.in', lastModified: new Date() }];
   }
 }
