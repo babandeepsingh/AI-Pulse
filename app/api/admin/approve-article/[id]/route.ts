@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 import { sendEmail } from '@/lib/mailer';
+import { notifyNewArticle } from '@/lib/push';
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -18,9 +19,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const article = res.rows[0];
 
     // Move to articles table
-    await query(
+    const inserted = await query(
       `INSERT INTO articles (title, content, summary, image_url, source_name, source_url)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
       [article.title, article.content, article.summary, article.image_url, article.source_name, article.source_url]
     );
 
@@ -33,7 +35,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       `Article Approved: ${article.title}\n\nIt has been moved to the main articles table.`
     );
 
-    return NextResponse.json({ success: true });
+    // Notify browser / installed-PWA subscribers. Never fails the request.
+    const push = await notifyNewArticle(inserted.rows[0]);
+
+    return NextResponse.json({ success: true, push });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
