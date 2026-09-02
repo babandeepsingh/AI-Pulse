@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'add' | 'submitted'>('add');
+  const [activeTab, setActiveTab] = useState<'add' | 'submitted' | 'push'>('add');
 
   // Form state for adding articles
   const [title, setTitle] = useState('');
@@ -19,6 +19,10 @@ export default function AdminDashboard() {
 
   // Modal state
   const [previewArticle, setPreviewArticle] = useState<any>(null);
+
+  // Push notification diagnostics
+  const [pushInfo, setPushInfo] = useState<any>(null);
+  const [pushBusy, setPushBusy] = useState(false);
 
   // Token
   const token =
@@ -41,7 +45,7 @@ export default function AdminDashboard() {
 
   // Add article manually
   const addArticle = async () => {
-    await fetch('/api/admin/add-article', {
+    const res = await fetch('/api/admin/add-article', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -57,7 +61,21 @@ export default function AdminDashboard() {
         sourceUrl,
       }),
     });
-    alert('Article added!');
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      alert(`Failed to add article: ${data?.error || res.status}`);
+      return;
+    }
+
+    const push = data?.push;
+    alert(
+      push
+        ? `Article added!\n\nPush: sent ${push.sent}, failed ${push.failed}` +
+          (push.skipped ? ' (VAPID keys missing on the server)' : '')
+        : 'Article added!'
+    );
   };
 
   // Approve article
@@ -73,6 +91,26 @@ export default function AdminDashboard() {
     } else {
       alert('Failed to approve');
     }
+  };
+
+  // Push diagnostics
+  const checkPush = async () => {
+    setPushBusy(true);
+    const res = await fetch('/api/push/test', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setPushInfo(await res.json().catch(() => ({ error: `HTTP ${res.status}` })));
+    setPushBusy(false);
+  };
+
+  const sendTestPush = async () => {
+    setPushBusy(true);
+    const res = await fetch('/api/push/test', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setPushInfo(await res.json().catch(() => ({ error: `HTTP ${res.status}` })));
+    setPushBusy(false);
   };
 
   return (
@@ -95,7 +133,54 @@ export default function AdminDashboard() {
         >
           Submitted Articles
         </button>
+        <button
+          className={`px-4 py-2 rounded ${
+            activeTab === 'push' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+          }`}
+          onClick={() => setActiveTab('push')}
+        >
+          Notifications
+        </button>
       </div>
+
+      {/* Tab 3: Push diagnostics */}
+      {activeTab === 'push' && (
+        <div className="bg-white p-6 shadow rounded">
+          <h2 className="text-xl font-bold mb-4">Push Notifications</h2>
+
+          <div className="flex flex-wrap gap-3 mb-4">
+            <button
+              onClick={checkPush}
+              disabled={pushBusy}
+              className="px-4 py-2 bg-gray-800 text-white rounded disabled:opacity-50"
+            >
+              Check status
+            </button>
+            <button
+              onClick={sendTestPush}
+              disabled={pushBusy}
+              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+            >
+              Send test notification
+            </button>
+          </div>
+
+          {pushBusy && <p className="text-sm text-gray-500">Working…</p>}
+
+          {pushInfo && (
+            <pre className="bg-gray-100 p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap break-all">
+              {JSON.stringify(pushInfo, null, 2)}
+            </pre>
+          )}
+
+          <p className="mt-4 text-xs text-gray-500 leading-relaxed">
+            <strong>vapidConfigured: false</strong> means the VAPID env vars are not
+            reaching this deployment. <strong>active: 0</strong> means no browser has
+            subscribed yet. If a send reports failures, the error list shows the status
+            code returned by each push service.
+          </p>
+        </div>
+      )}
 
       {/* Tab 1: Add Article */}
       {activeTab === 'add' && (

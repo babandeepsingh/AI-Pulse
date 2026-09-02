@@ -61,6 +61,7 @@ export async function sendPushToAll(payload: PushPayload) {
 
   const body = JSON.stringify(payload);
   const stale: string[] = [];
+  const errors: { endpoint: string; statusCode?: number; message: string }[] = [];
 
   const results = await Promise.allSettled(
     subscribers.rows.map((row: { endpoint: string; p256dh: string; auth: string }) =>
@@ -77,6 +78,11 @@ export async function sendPushToAll(payload: PushPayload) {
           if (err?.statusCode === 404 || err?.statusCode === 410) {
             stale.push(row.endpoint);
           }
+          errors.push({
+            endpoint: row.endpoint.slice(0, 60) + '…',
+            statusCode: err?.statusCode,
+            message: String(err?.body || err?.message || err).slice(0, 200),
+          });
           throw err;
         })
     )
@@ -92,7 +98,7 @@ export async function sendPushToAll(payload: PushPayload) {
   const sent = results.filter((r) => r.status === 'fulfilled').length;
   const failed = results.length - sent;
 
-  return { sent, failed, removed: stale.length, skipped: false as const };
+  return { sent, failed, removed: stale.length, skipped: false as const, errors };
 }
 
 /**
