@@ -2,6 +2,7 @@ import Link from 'next/link';
 import './globals.css';
 import type { Metadata } from 'next';
 import FloatingActions from '@/components/FloatingActions';
+import PushNotifications from '@/components/PushNotifications';
 
 const SITE_URL = 'https://news.babandeep.in';
 
@@ -36,6 +37,21 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  manifest: '/manifest.json',
+  applicationName: 'AI News',
+  appleWebApp: {
+    capable: true,
+    title: 'AI News',
+    statusBarStyle: 'black-translucent',
+  },
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  themeColor: '#000000',
 };
 
 export default function RootLayout({
@@ -78,6 +94,7 @@ export default function RootLayout({
         </nav>
         <div className="max-w-5xl mx-auto p-6">{children}</div>
         <FloatingActions />
+        <PushNotifications />
       </body>
     </html>
   );

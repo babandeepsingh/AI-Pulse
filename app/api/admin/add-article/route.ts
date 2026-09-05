@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
+import { notifyNewArticle } from '@/lib/push';
 
 export async function POST(req: Request) {
   const token = req.headers.get('authorization')?.split(' ')[1];
@@ -42,5 +43,8 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ success: true });
+  // Notify browser / installed-PWA subscribers. Never fails the request.
+  const push = await notifyNewArticle(article.rows[0]);
+
+  return NextResponse.json({ success: true, push });
 }
