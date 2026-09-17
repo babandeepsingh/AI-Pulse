@@ -2,7 +2,8 @@ import { query } from '@/lib/db';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
-const SITE_URL = 'https://yoursite.com'; // ← same as layout.tsx
+
+const SITE_URL = 'https://news.babandeep.in';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const result = await query('SELECT * FROM articles WHERE id = $1', [params.id]);
