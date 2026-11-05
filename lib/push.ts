@@ -1,5 +1,6 @@
 import webpush from 'web-push';
 import { query } from '@/lib/db';
+import { articlePath } from '@/lib/site';
 
 export interface PushPayload {
   title: string;
@@ -113,7 +114,7 @@ export async function notifyNewArticle(article: {
   image_url?: string | null;
 }) {
   try {
-    const url = article.id ? `/article/${article.id}` : '/';
+    const url = article.id ? articlePath({ id: article.id, title: article.title }) : '/';
     const result = await sendPushToAll({
       title: 'New on AI News',
       body: article.title,

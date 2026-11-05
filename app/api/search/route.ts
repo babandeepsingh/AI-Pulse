@@ -11,8 +11,8 @@ export async function GET(req: Request) {
     FROM articles a
     LEFT JOIN article_tags at ON a.id = at.article_id
     LEFT JOIN tags t ON t.id = at.tag_id
-    WHERE LOWER(a.title) LIKE LOWER($1)
-       OR LOWER(t.name) LIKE LOWER($1)
+    WHERE a.is_published = true
+      AND (LOWER(a.title) LIKE LOWER($1) OR LOWER(t.name) LIKE LOWER($1))
     ORDER BY a.created_at DESC
     `,
     [`%${term}%`]

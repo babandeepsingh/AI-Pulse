@@ -3,6 +3,7 @@ import { query } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 import { sendEmail } from '@/lib/mailer';
 import { notifyNewArticle } from '@/lib/push';
+import { onArticlePublished } from '@/lib/publish';
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -38,7 +39,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     // Notify browser / installed-PWA subscribers. Never fails the request.
     const push = await notifyNewArticle(inserted.rows[0]);
 
-    return NextResponse.json({ success: true, push });
+    // Refresh homepage/sitemap/RSS caches and ping IndexNow. Never throws.
+    const seo = await onArticlePublished(inserted.rows[0]);
+
+    return NextResponse.json({ success: true, push, seo });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
