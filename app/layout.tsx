@@ -3,39 +3,34 @@ import './globals.css';
 import type { Metadata } from 'next';
 import FloatingActions from '@/components/FloatingActions';
 import PushNotifications from '@/components/PushNotifications';
-
-const SITE_URL = 'https://news.babandeep.in';
+import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from '@/lib/site';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'News — Daily AI News',
-    template: '%s | AI News',
+    default: SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: 'AI News delivers daily AI-generated news on artificial intelligence, machine learning, and frontier models. Stay informed every morning.',
-  keywords: ['AI news', 'artificial intelligence', 'machine learning', 'daily AI briefing', 'frontier models'],
-  authors: [{ name: 'Babandeep Singh' }],
+  description: SITE_DESCRIPTION,
+  authors: [{ name: 'Babandeep Singh', url: `${SITE_URL}/about` }],
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' },
   },
+  // Site-wide defaults only; each page sets its own canonical, og:url and title.
   openGraph: {
     type: 'website',
-    url: SITE_URL,
-    siteName: 'AI News',
-    title: 'AI News — Daily AI News',
-    description: 'AI-generated news on artificial intelligence, delivered daily.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'AI News' }],
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: SITE_NAME }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI News — Daily AI News',
-    description: 'AI-generated news on artificial intelligence, delivered daily.',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     images: ['/og-image.png'],
-  },
-  alternates: {
-    canonical: SITE_URL,
   },
   manifest: '/manifest.json',
   applicationName: 'AI News',
@@ -70,18 +65,7 @@ export default function RootLayout({
             }}
           />
         )}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'NewsMediaOrganization',
-              name: 'AI News',
-              url: SITE_URL,
-              description: 'Daily AI-generated news on artificial intelligence and machine learning.',
-            }),
-          }}
-        />
+        <link rel="alternate" type="application/rss+xml" title={`${SITE_NAME} RSS feed`} href={`${SITE_URL}/rss.xml`} />
       </head>
       <body className="bg-gray-100">
         <nav className="bg-black text-white p-4 flex justify-between items-center">
@@ -93,6 +77,12 @@ export default function RootLayout({
           </Link>
         </nav>
         <div className="max-w-5xl mx-auto p-6">{children}</div>
+        <footer className="max-w-5xl mx-auto px-6 pb-10 pt-4 text-sm text-gray-500 flex flex-wrap gap-x-4 gap-y-2">
+          <span>© {new Date().getFullYear()} {SITE_NAME}</span>
+          <Link href="/about" className="hover:underline">About</Link>
+          <Link href="/editorial-policy" className="hover:underline">Editorial Policy</Link>
+          <a href="/rss.xml" className="hover:underline">RSS</a>
+        </footer>
         <FloatingActions />
         <PushNotifications />
       </body>
