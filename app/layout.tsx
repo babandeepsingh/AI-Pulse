@@ -58,6 +58,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="5I7cGJDGHUPhfCIW8SKWhdMm3QKBaCOCp1SzB9zPjmk" />
+        <meta name="msvalidate.01" content="D0F5D79A3EF452E2AB1310C98FF69415" />
         {process.env.NODE_ENV === 'production' && (
           <script
             dangerouslySetInnerHTML={{
